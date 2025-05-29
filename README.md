@@ -1,30 +1,28 @@
 # Next.js + Cypress 테스팅 실습
 
----
-
 ## 1. 프론트엔드 테스팅
 
-### <span style='background-color: #f6f8fa'>왜 테스트 코드가 필요할까?</span>
+### 왜 테스트 코드가 필요할까?
 
 - 모든 시스템을 사람이 일일이 직접 테스트하는 것은 불가능하다.
 - 규모가 작은 시스템은 테스팅이 필요 없을 수도 있지만, 규모가 커질수록 테스트할 수 있는 범위의 한계와 테스트 시간이 늘어난다.
 
-### <span style='background-color: #f6f8fa'>무엇을 테스트 해야할까?</span>
+### 무엇을 테스트 해야할까?
 
 - Front-end 개발자는 사용자 관점의 인터렉션과 기능 동작을 테스트 해야한다.
 
-### <span style='background-color: #f6f8fa'>어떻게 테스트 해야할까?</span>
+### 어떻게 테스트 해야할까?
 
 - 대중적인 라이브러리들을 사용한다.
 - Unit Test: **React Testing Library** 등
 - E2E Test: **Cypress** 등
 
-### <span style='background-color: #f6f8fa'>왜 Cypress일까?</span>
+### 왜 Cypress일까?
 
 - Front-end 개발 E2E 분야에서 가장 대중적이고 안정적인 라이브러리이다.
 - [문서화](https://docs.cypress.io/)가 잘 되어 있고, 참고할 수 있는 레퍼런스가 많다.
 
-### <span style='background-color: #f6f8fa'>E2E가 무엇일까?</span>
+### E2E가 무엇일까?
 
 - **E2E**: End-to-End 테스트를 의미한다.
   <div align="center">
