@@ -2,6 +2,8 @@ import js from '@eslint/js';
 import globals from 'globals';
 import pluginReact from 'eslint-plugin-react';
 import { defineConfig } from 'eslint/config';
+import pluginCypress from 'eslint-plugin-cypress/flat';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
 
 export default defineConfig({
 	overrides: [
@@ -11,7 +13,7 @@ export default defineConfig({
 				js,
 				prettier: 'prettier', // prettier 플러그인 추가
 			},
-			extends: ['next/core-web-vitals', 'plugin:prettier/recommended'],
+			extends: ['next/core-web-vitals'],
 			rules: {
 				// 선언되지 않은 변수 또는 임포트 구문 정리 규칙
 				'no-undef': 'error',
@@ -30,6 +32,9 @@ export default defineConfig({
 						useTabs: true,
 					},
 				],
+
+				// cypress 설정
+				'cypress/no-unnecessary-waiting': 'off',
 			},
 		},
 		{
@@ -38,6 +43,8 @@ export default defineConfig({
 				globals: globals.browser,
 			},
 		},
+		eslintPluginPrettier.configs.recommended,
 		pluginReact.configs.flat.recommended,
+		pluginCypress.configs.recommended,
 	],
 });
