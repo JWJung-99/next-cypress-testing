@@ -26,10 +26,9 @@
 
 - **E2E**: End-to-End 테스트를 의미한다.
 
-
-  | 프로젝트 폴더 |
-  | :-----------: |
-  |<img width="500" src="https://github.com/user-attachments/assets/d61ebc08-7157-4660-a402-152a7c20cf0b" />|
+  |                                               프로젝트 폴더                                               |
+  | :-------------------------------------------------------------------------------------------------------: |
+  | <img width="500" src="https://github.com/user-attachments/assets/d61ebc08-7157-4660-a402-152a7c20cf0b" /> |
 
   - **Unit Test**
 
@@ -51,19 +50,21 @@
 
 ## 2. 테스팅 실습 환경 구성
 
+> **환경** : Next.js + Cypress ([공식문서](https://nextjs.org/docs/app/guides/testing/cypress))
+
 ### 프로젝트에 cypress 설치
 
 - `devDependencies`에 cypress를 설치한다.
 
   ```bash
   npm install -D cypress
-  
+
   # or
-  
+
   yarn add -D cypress
-  
+
   # or
-  
+
   pnpm install -D cypress
   ```
 
@@ -71,13 +72,13 @@
 
   ```json
   {
-    "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "next start",
-      "lint": "next lint",
-      "cypress:open": "cypress open"
-    }
+  	"scripts": {
+  		"dev": "next dev",
+  		"build": "next build",
+  		"start": "next start",
+  		"lint": "next lint",
+  		"cypress:open": "cypress open"
+  	}
   }
   ```
 
@@ -89,18 +90,18 @@
   npm run cypress:open
   ```
 
-  | cypress 실행 결과 |
-  | :---------------: |
-  |<img width="500" alt="Image" src="https://github.com/user-attachments/assets/d2cf7003-96b0-4fc8-b824-16409b408895" />|
+  |                                                   cypress 실행 결과                                                   |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="Image" src="https://github.com/user-attachments/assets/d2cf7003-96b0-4fc8-b824-16409b408895" /> |
 
 - **E2E Testing을 선택**하고 테스트할 브라우저를 선택한다.
 
-  | 브라우저 선택 |
-  | :-----------: |
-  |<img width="500" alt="Image" src="https://github.com/user-attachments/assets/29ef270b-512f-446f-a7b8-6ce3699532d5" />|
+  |                                                     브라우저 선택                                                     |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="Image" src="https://github.com/user-attachments/assets/29ef270b-512f-446f-a7b8-6ce3699532d5" /> |
 
 - cypress 창을 닫고 프로젝트 폴더로 돌아오면, cypress 폴더와 cypress 설정 파일이 생성된 것을 확인할 수 있다.
 
-  | 프로젝트 폴더 |
-  | :-----------: |
-  |<img width="150" alt="Image" src="https://github.com/user-attachments/assets/da448202-a32c-41cf-94c9-b25a8305e2fd" />|
+  |                                                     프로젝트 폴더                                                     |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="150" alt="Image" src="https://github.com/user-attachments/assets/da448202-a32c-41cf-94c9-b25a8305e2fd" /> |
