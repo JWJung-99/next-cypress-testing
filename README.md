@@ -402,3 +402,128 @@
 
 
 ### cypress 공통 훅
+
+> **참고**: [cypress hooks 공식문서](https://docs.cypress.io/app/core-concepts/writing-and-organizing-tests#Hooks)
+
+```js
+describe('Hooks', () => {
+  before(() => {
+    // runs once before all tests in the block
+  });
+
+  beforeEach(() => {
+    // runs before each test in the block
+  });
+
+  afterEach(() => {
+    // runs after each test in the block
+  });
+
+  after(() => {
+    // runs once after all tests in the block
+  });
+});
+```
+
+- `before` : `describe` 내부의 모든 테스트 코드를 실행되기 전에 **한 번만** 실행하는 코드를 작성
+
+- `beforeEach` : `describe` 내부의 **각각의** 테스트 코드를 실행하기 전에 **반복해서** 실행하는 코드를 작성
+
+- `afterEach` : `describe` 내부의 **각각의** 테스트 코드를 실행한 후 **반복해서** 실행하는 코드를 작성
+
+- `after` : `describe` 내부의 모든 테스트 코드를 실행한 후 **한 번만** 실행하는 코드를 작성
+
+### cypress 커스텀 커맨드
+
+> **참고**: [cypress 커스텀 커맨드 공식문서](https://docs.cypress.io/api/cypress-api/custom-commands)
+>
+> - `Cypress.Commands.add()`: 새로운 커스텀 커맨드를 추가하는 api
+> - `Cypress.Commands.overwrite()`: 기존 api를 덮어써서 나만의 로직을 작성하는 api
+>   - `overwrite`를 사용해 cypress에서 제공하는 api의 규격, 성질, 동작이 바뀐다면 예측 불가능한 코드가 될 수 있으므로 권장하지 않는다.
+> - cypress 커스텀 커맨드를 이용해 주로 로그인 인증 등의 자동화가 주로 이루어진다.
+
+- 현재 작성된 테스트 코드에서는 `data-cy`라는 부분이 계속해서 반복되고 있다.
+
+  |                                                  반복되는 `data-cy`                                                   |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="300" alt="image" src="https://github.com/user-attachments/assets/005ad07b-4660-448b-a49f-f804b1ed3616" /> |
+
+  - 간단한 애플리케이션이라면 괜찮겠지만, 애플리케이션이 커질수록 복잡하고 많은 요소들이 표현되고 인터렉션 또한 훨씬 많을 것이므로 `data-cy` 같은 테스트 ID가 테스트 코드에서 계속 반복된다면 굉장히 가독성이 떨어질 것이다.
+
+- cypress 커스텀 커맨드를 이용해 효율적인 코드를 작성한다.
+
+  - cypress를 처음 실행했을 때 생성된 **support** 폴더 아래에 `command.js`라는 파일이 존재한다.
+
+    |                                             `/cypress/support/command.js`                                             |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="200" alt="image" src="https://github.com/user-attachments/assets/86e4c271-c94a-4bbf-bc53-215555284323" /> |
+
+  - 반복적인 `data-cy` 사용을 줄이기 위한 api를 추가한다.
+
+    - 요소에 부여한 테스트 ID를 `text`로 입력 받아 기존에 반복적으로 사용하던 `cy.get` api를 `return`한다.
+
+      ```js
+      Cypress.Commands.add('getByCy', (text) => {
+        return cy.get(`[data-cy=${text}]`);
+      });
+      ```
+
+    - 생성한 `getByCy` api로 테스트 코드의 `cy.get('[data-cy=테스트ID]')` 부분을 대체한다.
+
+      ```js
+      it('페이지에 진입하면 Counter 앱이 정상적으로 실행된다: 0이 표시된다.', () => {
+        // before
+        cy.get('[data-cy=counter]').contains(0);
+
+        // after
+        cy.getByCy('counter').contains(0);
+      });
+      ```
+
+- 테스트가 정상적으로 동작하는 것을 확인할 수 있다.
+
+  |                                                   테스트 실행 결과                                                    |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="image" src="https://github.com/user-attachments/assets/5b79670c-3da0-4bc2-af45-6952f63674ee" /> |
+
+### 커스텀 커맨드 함수를 다룰 때 유의할 점
+
+- 개발자 경험을 저하시킨다.
+
+  - cypress에서 제공하는 api를 사용하면 다음과 같이 해당 요소에 맞는 api가 자동완성되며, api에 대한 설명 또한 확인할 수 있다.
+    
+
+    |                                                   cypress api 사용                                                    |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="300" alt="image" src="https://github.com/user-attachments/assets/cea9a93f-ccce-4863-b99e-34a1436c1d4f" /> |
+
+  - 하지만 커스텀 커맨드를 이용할 경우 찾은 요소에 활용할 수 있는 api를 확인할 수 없다.
+
+    - 이는 `getByCy` api의 반환 타입이 설정되지 않았기 때문인데, TypeScript 기반의 cypress 환경에서 타입을 지정하면 활용할 수 있다.
+    <br />
+    
+    |                                                  커스텀 커맨드 사용                                                   |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="300" alt="image" src="https://github.com/user-attachments/assets/07078cd4-c300-40aa-bff8-ece3163346a4" /> |
+
+- 커스텀 커맨드가 어떤 역할을 하는지 잘 드러나지 않는다.
+
+  - 이는 실무에서 지양해야 하는 코드 작성법이며, 의도를 담아서 작성한 코드에는 주석을 달아주는 것이 중요하다.
+
+  - 작성한 커스텀 커맨드에 JSDoc 방식으로 주석을 달아 해당 코드가 어떤 역할을 하며, 어떤 매개변수를 필요로 하는지 등을 작성하는 것이 좋다.
+
+    ```js
+    /**
+     * @description data-cy로 설정된 요소를 쉽게 찾을 수 있는 커스텀 api
+     * @param {string} text - `data-cy` 값으로 사용할 요소의 테스트 ID
+     * @returns {Cypress.Chainable} - 선택된 DOM 요소를 반환
+     *
+     * @example
+     * cy.getByCy('plus-button').click();
+     */
+    Cypress.Commands.add('getByCy', (text) => {
+      return cy.get(`[data-cy=${text}]`);
+    });
+    ```
+
+---
