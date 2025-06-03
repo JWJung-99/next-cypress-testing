@@ -1,3 +1,4 @@
+import ProductHeader from '@/components/ProductHeader';
 import ProductList from '@/components/ProductList';
 import BasicLayout from '@/layouts/BasicLayout';
 import { useState } from 'react';
@@ -28,11 +29,13 @@ function Counter() {
 
 // "http://localhost:3000"에 진입했을 때 보이는 페이지 컴포넌트
 function ProductPage() {
+	const headerTitle = '상품 목록 페이지';
+
 	return (
 		<BasicLayout>
-			<Counter />
-			{/* <h1>상품 목록</h1>
-			<ProductList></ProductList> */}
+			{/* <Counter /> */}
+			<ProductHeader title={headerTitle} />
+			<ProductList />
 		</BasicLayout>
 	);
 }
