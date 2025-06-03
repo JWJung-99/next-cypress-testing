@@ -8,7 +8,7 @@ function ProductList() {
 	const [products, setProducts] = useState([]);
 
 	useEffect(() => {
-		fetchProducts().then(res => {
+		fetchProducts().then((res) => {
 			setProducts(res.data);
 		});
 	}, []);
@@ -19,7 +19,7 @@ function ProductList() {
 				{products &&
 					products.map(({ imageUrl, name, id }, index) => {
 						return (
-							<li className={styles.item} key={index}>
+							<li data-cy="product-item" className={styles.item} key={index}>
 								<Link href={`/products/${id}`}>
 									<div>
 										<Image src={imageUrl} width={300} height={300} alt={name} />
