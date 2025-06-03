@@ -3,6 +3,7 @@ import styles from './ProductDetail.module.css';
 import { createCartItem } from '@/api';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import ProductHeader from '@/components/ProductHeader';
 
 function ProductDetail({ product }) {
 	const { imageUrl, price, name, id } = product;
@@ -20,7 +21,7 @@ function ProductDetail({ product }) {
 
 	return (
 		<div>
-			<h1>상품 상세 페이지</h1>
+			<ProductHeader title={'상품 상세 페이지'} />
 			<div className={styles.container}>
 				<div>
 					<Image src={imageUrl} width={250} height={250} alt={name} />
