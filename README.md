@@ -777,3 +777,97 @@ describe('Hooks', () => {
   | :-------------------------------------------------------------------------------------------------------------------: |
   | <img width="500" alt="image" src="https://github.com/user-attachments/assets/7d399936-bde8-4e25-a9c2-7a3705790b49" /> |
 
+---
+
+## 7. 실전 프로젝트 - Part 2
+
+### 상품 상세 페이지 첫 번째 테스트 코드 작성
+
+> ① 상품 상세 페이지로 이동하면 상품의 이름과 가격이 정상적으로 표시된다.
+
+- 상품 상세 페이지에 있는 요소에 cypress 테스트 ID를 부여한다.
+
+  ```jsx
+  <div>
+    <Image data-cy="product-image" src={imageUrl} width={250} height={250} alt={name} />
+  </div>
+  <div className={styles.description}>
+    <p data-cy="product-name">{name}</p>
+    <p data-cy="product-price">{price}</p>
+    <button onClick={addCart}>장바구니에 담기</button>
+  </div>
+  ```
+
+- 테스트 코드를 작성한다.
+
+  ```js
+  describe('상품 상세 페이지', () => {
+    it('상품 상세 페이지로 이동하면 상품의 이름과 가격이 정상적으로 표시된다.', () => {
+      // prepare & action
+      cy.visit('/products/0');
+
+      // assertion
+      cy.getByCy('product-image').should('be.visible');
+      cy.getByCy('product-name').should('be.visible');
+      cy.getByCy('product-price').should('be.visible');
+    });
+  });
+  ```
+
+- 테스트 실행 결과는 다음과 같다.
+
+  |                                                   테스트 실행 결과                                                    |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="image" src="https://github.com/user-attachments/assets/f0dc1b5d-eb39-4056-a9a7-e25cf78edccc" /> |
+
+### 상품 상세 페이지 두 번째 테스트 코드 작성 - 시스템 alert
+
+> ② 상품을 장바구니에 추가했을 때 시스템 alert가 잘 나타나는지 확인한다.
+
+- "장바구니에 담기" 버튼에 cypress 테스트 ID를 부여한다.
+
+  ```jsx
+  <button data-cy="cart-button" onClick={addCart}>
+    장바구니에 담기
+  </button>
+  ```
+
+- "장바구니에 담기" 버튼을 클릭 시뮬레이션 코드를 작성한다.
+
+  - `then()`: 앞 동작이 실행되고 나면 연결해서 실행할 동작에 대해 정의하는 cypress api
+
+    ```js
+    cy.getByCy('cart-button').click().then();
+    ```
+
+    - 클릭해서 나온 결과물에 대한 요소 접근이 필요할 때 사용한다.
+
+  ```js
+  cy.getByCy('cart-button').click();
+  ```
+
+- [공식문서](https://docs.cypress.io/api/cypress-api/catalog-of-events#Window-Alert)를 참고하여 시스템 alert 관련 cypress 코드를 작성한다.
+
+  - 테스트 코드 실행 전 `stub`을 실행하는 것이 좋다.
+
+  ```js
+  it('장바구니에 담기 버튼을 클릭하면 "장바구니에 추가됨"이 표시된다.', () => {
+    // prepare
+    const stub = cy.stub();
+    cy.on('window:alert', stub);
+
+    // action
+    cy.getByCy('cart-button')
+      .click()
+      .then(() => {
+        expect(stub.getCall(0)).to.be.calledWith('장바구니에 추가됨');
+    });
+  });
+  ```
+
+- 테스트 실행 결과는 다음과 같다.
+
+  |                                                   테스트 실행 결과                                                    |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="image" src="https://github.com/user-attachments/assets/0729874c-a1f2-406d-8a2e-d955dd73f99c" /> |
+
