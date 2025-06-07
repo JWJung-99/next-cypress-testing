@@ -33,8 +33,13 @@ describe('상품 목록 페이지', () => {
 	});
 
 	// 네 번째 테스트 시나리오 - API 모킹
-	it('상품 목록이 3개면 화면에 3개의 상품이 표시된다.', () => {
-		cy.intercept('/products', THREE_PRODUCT_ITEMS);
+	it.only('상품 목록이 3개면 화면에 3개의 상품이 표시된다.', () => {
+		// prepare & action
+		cy.intercept('/products', THREE_PRODUCT_ITEMS).as('getProducts');
 		cy.visit('/');
+		cy.wait('@getProducts');
+
+		// assertion
+		cy.getByCy('product-item').should('have.length', 3);
 	});
 });
