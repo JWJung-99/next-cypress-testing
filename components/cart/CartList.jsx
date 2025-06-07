@@ -10,7 +10,7 @@ function CartList({ carts }) {
 	const totalAmount = carts.length;
 	const totalPrice = carts.reduce((acc, cur) => acc + Number(cur.price), 0);
 
-	const removeCart = async id => {
+	const removeCart = async (id) => {
 		const { data } = await axios.post('http://localhost:3000/api/cart', {
 			data: {
 				id,
@@ -24,21 +24,34 @@ function CartList({ carts }) {
 		<div className={styles.container}>
 			<ul>
 				{carts.map(({ id, name, price, imageUrl }) => (
-					<li key={id} className={styles.item}>
+					<li data-cy="cart-list" key={id} className={styles.item}>
 						<div>
-							<Image width={100} height={100} src={imageUrl} alt={name}></Image>
+							<Image
+								data-cy="cart-image"
+								width={100}
+								height={100}
+								src={imageUrl}
+								alt={name}
+							></Image>
 						</div>
 						<div className={styles.description}>
-							<p>{name}</p>
-							<p>{price}</p>
-							<button onClick={() => removeCart(id)}>삭제하기</button>
+							<p data-cy="cart-name">{name}</p>
+							<p data-cy="cart-price">{price}</p>
+							<button
+								data-cy="cart-delete-button"
+								onClick={() => removeCart(id)}
+							>
+								삭제하기
+							</button>
 						</div>
 					</li>
 				))}
 			</ul>
 			<div className={styles.total}>
 				<p>
-					<span className={styles.price}>총 수량 : {totalAmount}</span>
+					<span data-cy="cart-amount" className={styles.price}>
+						총 수량 : {totalAmount}
+					</span>
 				</p>
 				<p>
 					<span className={styles.amount}>
