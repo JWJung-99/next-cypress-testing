@@ -1,3 +1,6 @@
+// const { ALERT_MESSAGE } = require('@/components/ProductDetail');
+const ALERT_MESSAGE = '장바구니에 추가됨';
+
 describe('상품 상세 페이지', () => {
 	beforeEach(() => {
 		// prepare
@@ -22,7 +25,17 @@ describe('상품 상세 페이지', () => {
 		cy.getByCy('cart-button')
 			.click()
 			.then(() => {
-				expect(stub.getCall(0)).to.be.calledWith('장바구니에 추가됨');
+				// assertion
+				expect(stub.getCall(0)).to.be.calledWith(ALERT_MESSAGE);
 			});
+	});
+
+	// 세 번째 테스트 시나리오
+	it.only('장바구니 버튼을 클릭하면 장바구니 페이지로 이동한다.', () => {
+		// action
+		cy.getByCy('cart-button').click();
+
+		// assertion
+		cy.url().should('include', '/cart');
 	});
 });

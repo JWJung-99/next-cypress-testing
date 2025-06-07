@@ -5,6 +5,8 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import ProductHeader from '@/components/ProductHeader';
 
+export const ALERT_MESSAGE = '장바구니에 추가됨';
+
 function ProductDetail({ product }) {
 	const { imageUrl, price, name, id } = product;
 	const router = useRouter();
@@ -13,7 +15,7 @@ function ProductDetail({ product }) {
 		try {
 			const { data } = await createCartItem(product);
 			// alert(`${data.name}가 장바구니에 담겼습니다`);
-			alert('장바구니에 추가됨');
+			alert(ALERT_MESSAGE);
 			router.push('/cart');
 		} catch (error) {
 			console.log(error);
