@@ -1,4 +1,4 @@
-# Next.js + Cypress 테스팅 실습
+<img width="1314" alt="image" src="https://github.com/user-attachments/assets/7f4dc0f2-be75-475b-b64c-eec582948354" /># Next.js + Cypress 테스팅 실습
 
 ## 1. 프론트엔드 테스팅
 
@@ -1008,3 +1008,110 @@ describe('Hooks', () => {
       | :-------------------------------------------------------------------------------------------------------------------: |
       | <img width="500" alt="image" src="https://github.com/user-attachments/assets/fd0dc781-bc41-498e-b37d-adbbe2a9036f" /> |
 
+
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/07e50a22-2453-4899-b979-c27ce2f64c59" />
+
+### API 모킹 및 인터셉터
+
+- **모킹(Mocking)**: 실제 데이터가 아닌 임의 데이터로 생성하여 테스트
+
+- `intercept`: 네트워크 요청과 응답에 대해서 임의의 값으로 제어하기 위해 사용하는 API ([공식문서](https://docs.cypress.io/api/commands/intercept))
+
+- 상품 데이터의 개수에 맞춰서 화면이 렌더링 되는지에 대해 테스트 시나리오를 작성한다.
+
+  > 상품 목록이 n개면 화면에 n개의 상품이 표시된다.
+
+  - 상품 목록 데이터를 받아 오는 API 엔드포인트를 알고 있어야 한다.
+
+    |                                                    API 엔드포인트                                                     |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="200" alt="image" src="https://github.com/user-attachments/assets/e347ca53-0f7e-44e6-9bb0-4bf828252f9d" /> |
+
+  - 더미 데이터를 보관하는 `cypress/fixtures` 폴더 내부에 `index.js` 파일을 생성한다.
+
+    |                                              `cypress/fixtures/index.js`                                              |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="200" alt="image" src="https://github.com/user-attachments/assets/7acdbc5d-0e43-4f3c-84dd-5ea17127802c" /> |
+
+  - `index.js` 내부에 API로부터 받아올 수 있는 데이터 n개를 다음과 같이 저장하고 `export` 한다.
+
+    ```js
+    const THREE_PRODUCT_ITEMS = [
+      {
+        id: '0',
+        name: 'Refined Fresh Chicken',
+        price: '209.00',
+        imageUrl: 'https://cdn.pixabay.com/user/2016/03/26/22-06-36-459_250x250.jpg',
+      },
+      {
+        id: '1',
+        name: 'Intelligent Metal Mouse',
+        price: '84.00',
+        imageUrl: 'https://cdn.pixabay.com/user/2023/05/21/19-38-51-804_250x250.jpg',
+      },
+      {
+        id: '2',
+        name: 'Handcrafted Frozen Pizza',
+        price: '315.00',
+        imageUrl: 'https://cdn.pixabay.com/user/2016/06/01/15-27-35-456_250x250.jpg',
+      },
+    ];
+
+    export { THREE_PRODUCT_ITEMS };
+    ```
+
+  - `intercept`에 API 엔드포인트 주소를 설정해 해당 엔드포인트에 대한 API 요청을 모킹한다.
+
+    ```js
+    cy.intercept('/products', THREE_PRODUCT_ITEMS);
+    ```
+
+  - `intercept` 이후에는 `cy.visit()`을 통해 한 번 더 방문해주어야 한다.
+
+    - interceptor는 페이지에 들어가기 전에 cypress의 네트워크 레벨에서 API가 처리가 되는 순간 `intercept`하는 것이기 떄문에 페이지에 들어가기 전에 미리 해 두어야 한다.
+
+    - 따라서 `cy.visit()`을 `beforeEach`에서 하고 있지만, `intercept` 이후에 한 번 더 실행해야 한다.
+
+    - 보통 `beforeEach` 내부에서 `visit` 전에 인증, API 모킹 작업을 진행하고 이를 별칭(alias)로 불러오는 형태를 활용한다.
+
+  - 테스트 실행 결과는 다음과 같다.
+
+    - `/products` API 엔드포인트로 요청을 보내 데이터를 받아 왔는데, 이 요청은 모킹되어 있기 때문에 `fixtures`에 저장한 임의의 데이터를 `Response.body`에 불러온 것을 확인할 수 있다.
+ 
+    <br />
+
+    |                                                  모킹이 일어난 모습                                                   |                                                     모킹한 데이터                                                     |                                                   테스트 실행 결과                                                    |
+    | :-------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="300" alt="image" src="https://github.com/user-attachments/assets/65d9b4a1-a96d-47b3-81fe-052974f203d2" /> | <img width="300" alt="image" src="https://github.com/user-attachments/assets/07e50a22-2453-4899-b979-c27ce2f64c59" /> | <img width="300" alt="image" src="https://github.com/user-attachments/assets/03a15c57-dda7-413d-81bb-4206c8df305f" /> |
+
+### 다섯번 째 테스트 코드 작성
+
+- 네트워크 요청이 페이지에 들어갔을 때, 시간이 얼마나 걸릴지 모르기 때문에 모킹에 대한 요청을 기다리겠다고 명시적으로 선언해야 한다.
+
+  - `as`를 통해 요청에 대한 별칭(alias)를 설정한다.
+
+    ```js
+    cy.intercept('/products', THREE_PRODUCT_ITEMS).as('getProducts');
+    ```
+
+  - `cy.wait(@alias)`를 통해 페이지에 진입하고 나서 네트워크 요청이 끝날 때까지 기다린다.
+
+    > `wait` 내부에는 임의의 시간(ex. 3000, 5000)을 지정하는 것이 아니라, 정확이 어떤 요청을 기다리는지 별칭을 지정해야 한다.
+
+    ```js
+    cy.intercept('/products', THREE_PRODUCT_ITEMS).as('getProducts');
+    cy.visit('/');
+    cy.wait('@getProducts');
+    ```
+
+  - 요청에 대한 응답이 n개 존재한다는 것을 확인한다.
+
+    ```js
+    cy.getByCy('product-item').should('have.length', 3);
+    ```
+
+  - 테스트 실행 결과는 다음과 같다.
+
+    |                                                   테스트 실행 결과                                                    |
+    | :-------------------------------------------------------------------------------------------------------------------: |
+    | <img width="500" alt="image" src="https://github.com/user-attachments/assets/c325fbdf-71e4-4515-a3cf-f1c77e0268ef" /> |
