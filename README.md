@@ -834,7 +834,7 @@ describe('Hooks', () => {
 
 - "장바구니에 담기" 버튼을 클릭 시뮬레이션 코드를 작성한다.
 
-  - `then()`: 앞 동작이 실행되고 나면 연결해서 실행할 동작에 대해 정의하는 cypress api
+  - `then()`: 앞 동작이 실행되고 나면 연결해서 실행할 동작에 대해 정의하는 cypress api ([공식문서](https://docs.cypress.io/api/commands/then))
 
     ```js
     cy.getByCy('cart-button').click().then();
@@ -860,6 +860,7 @@ describe('Hooks', () => {
     cy.getByCy('cart-button')
       .click()
       .then(() => {
+        // assertion
         expect(stub.getCall(0)).to.be.calledWith('장바구니에 추가됨');
     });
   });
@@ -870,4 +871,140 @@ describe('Hooks', () => {
   |                                                   테스트 실행 결과                                                    |
   | :-------------------------------------------------------------------------------------------------------------------: |
   | <img width="500" alt="image" src="https://github.com/user-attachments/assets/0729874c-a1f2-406d-8a2e-d955dd73f99c" /> |
+
+### 상수화
+
+- 컴포넌트에서 작성한 코드와 테스트에서 작성한 코드가 하나라도 다를 경우 에러가 발생한다.
+
+  |                                            **"."** 하나 차이로 발생한 에러                                            |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="image" src="https://github.com/user-attachments/assets/066c947b-5074-42e0-b279-3ed1188317d5" /> |
+
+- 컴포넌트의 외부에서 해당 메시지를 상수화하여 `export`한다.
+
+  ```jsx
+  import React from 'react';
+  ...
+  export const ALERT_MESSAGE = '장바구니에 추가됨';
+
+  function ProductDetail({ product }) {
+    ...
+    const addCart = async () => {
+      try {
+        const { data } = await createCartItem(product);
+        // alert(`${data.name}가 장바구니에 담겼습니다`);
+        alert(ALERT_MESSAGE);
+        router.push('/cart');
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    ...
+  }
+  ```
+
+- 테스트 코드에서 해당 상수를 불러온다.
+
+  ```jsx
+  // action
+  cy.getByCy('cart-button')
+    .click()
+    .then(() => {
+      // assertion
+      expect(stub.getCall(0)).to.be.calledWith(ALERT_MESSAGE);
+    });
+  ```
+
+### 세 번째 테스트 코드 작성
+
+- 테스트 코드 실행 팁
+
+  - `it.only`: cypress가 `only` 키워드가 있는 테스트 시나리오만 실행한다.
+  - `it.skip`: cypress가 `skip` 키워드가 있는 테스트 시나리오는 실행하지 않는다.
+
+  ⇒ 지정한 테스트 코드를 실행/건너뛰기 하기 때문에 다른 테스트 시나리오 실행으로 인한 데이터 오염을 방지할 수 있다.
+
+> ③ 상품을 장바구니에 추가했을 때 장바구니 페이지로 잘 이동하는지 확인한다.
+
+- 테스트 코드를 작성한다.
+
+  ```js
+  // 세 번째 테스트 시나리오
+  it.only('장바구니 버튼을 클릭하면 장바구니 페이지로 이동한다.', () => {
+    // action
+    cy.getByCy('cart-button').click();
+
+    // assertion
+    cy.url().should('include', '/cart');
+  });
+  ```
+
+- `it.only`를 사용했기 때문에 해당 테스트 시나리오만 실행된 것을 cypress UI에서 확인할 수 있다.
+
+  |                                                   테스트 실행 결과                                                    |
+  | :-------------------------------------------------------------------------------------------------------------------: |
+  | <img width="500" alt="image" src="https://github.com/user-attachments/assets/c143f988-6138-4661-a3e7-6a4c19923c75" /> |
+
+### 네 번째 테스트 코드 작성
+
+- 장바구니 페이지에 대한 테스트 코드를 작성한다.
+
+  > ① 장바구니 페이지에 접속했을 때 상품 목록이 표시된다.
+
+  ```js
+  // 첫 번째 테스트 시나리오
+  it('페이지로 진입했을 때 상품 목록이 표시된다.', () => {
+    // assertion
+    cy.getByCy('cart-image').should('be.visible');
+    cy.getByCy('cart-name').should('be.visible');
+    cy.getByCy('cart-price').should('be.visible');
+  });
+  ```
+
+  > ② 삭제하기 버튼을 눌렀을 때 상품이 삭제된다.
+
+  - `then` 구문을 사용하지 않고 다음과 같이 코드를 작성하면 문제가 발생한다.
+
+    ```js
+    const cartLength = cy.getByCy('cart-list').length;
+
+    cy.getByCy('cart-delete-button')
+      .first()
+      .click()
+      .then(() => {
+        cy.getByCy('cart-amount').contains(cartLength - 1);
+      });
+    ```
+
+    - 그 이유는 `cy.getByCy('cart-list')`가 비동기 명령이므로, cypress 명령어가 즉시 값을 반환하지 않고 체인 형태로 실행 큐에 등록하기 때문에 length 같은 동기 JavaScript 메서드를 바로 호출하면 undefined 또는 오류가 발생하는 것이다.
+
+    - 에러 내용
+
+      |                                                   테스트 실행 결과                                                    |
+      | :-------------------------------------------------------------------------------------------------------------------: |
+      | <img width="500" alt="image" src="https://github.com/user-attachments/assets/2a14177f-ebeb-4037-ad6a-f12e01c32018" /> |
+
+  - 따라서 `then` 구문 안에서 비동기 명령을 처리한다.
+
+    ```js
+    // 두 번째 테스트 시나리오
+    it('삭제하기 버튼을 클릭하면 장바구니 목록의 총 수량이 1 감소한다.', () => {
+      cy.getByCy('cart-list').then(($list) => {
+        const cartLength = $list.length;
+
+        cy.getByCy('cart-delete-button')
+          .first()
+          .click()
+          .then(() => {
+            cy.getByCy('cart-amount').contains(cartLength - 1);
+          });
+      });
+    });
+    ```
+
+    - 테스트 실행 결과는 다음과 같다.
+
+      |                                                   테스트 실행 결과                                                    |
+      | :-------------------------------------------------------------------------------------------------------------------: |
+      | <img width="500" alt="image" src="https://github.com/user-attachments/assets/fd0dc781-bc41-498e-b37d-adbbe2a9036f" /> |
 
