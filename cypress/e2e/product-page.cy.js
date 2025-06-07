@@ -1,3 +1,5 @@
+const { THREE_PRODUCT_ITEMS } = require('../fixtures');
+
 describe('상품 목록 페이지', () => {
 	beforeEach(() => {
 		cy.visit('/');
@@ -28,5 +30,11 @@ describe('상품 목록 페이지', () => {
 
 		// assertion
 		cy.url().should('include', '/products/');
+	});
+
+	// 네 번째 테스트 시나리오 - API 모킹
+	it('상품 목록이 3개면 화면에 3개의 상품이 표시된다.', () => {
+		cy.intercept('/products', THREE_PRODUCT_ITEMS);
+		cy.visit('/');
 	});
 });
