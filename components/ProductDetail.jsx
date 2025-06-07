@@ -12,7 +12,8 @@ function ProductDetail({ product }) {
 	const addCart = async () => {
 		try {
 			const { data } = await createCartItem(product);
-			alert(`${data.name}가 장바구니에 담겼습니다`);
+			// alert(`${data.name}가 장바구니에 담겼습니다`);
+			alert('장바구니에 추가됨');
 			router.push('/cart');
 		} catch (error) {
 			console.log(error);
@@ -24,12 +25,20 @@ function ProductDetail({ product }) {
 			<ProductHeader title={'상품 상세 페이지'} />
 			<div className={styles.container}>
 				<div>
-					<Image src={imageUrl} width={250} height={250} alt={name} />
+					<Image
+						data-cy="product-image"
+						src={imageUrl}
+						width={250}
+						height={250}
+						alt={name}
+					/>
 				</div>
 				<div className={styles.description}>
-					<p>{name}</p>
-					<p>{price}</p>
-					<button onClick={addCart}>장바구니에 담기</button>
+					<p data-cy="product-name">{name}</p>
+					<p data-cy="product-price">{price}</p>
+					<button data-cy="cart-button" onClick={addCart}>
+						장바구니에 담기
+					</button>
 				</div>
 			</div>
 		</div>
